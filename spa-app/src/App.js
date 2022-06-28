@@ -1,31 +1,49 @@
 import "./App.css";
+import { useState, useEffect } from "react";
+import TaskForm from "./components/TaskForm"
+import TaskList from "./components/TaskList";
 
-const tarefas = [
-  {
-    id: "1",
-    descricao: "Primeira tarefa"
-  },
-  {
-    id: "2",
-    descricao: "Segunda tarefa"
-  }
-]
+let initialState = []
 
 function App() {
+
+  const [index, setIndex] = useState(0);
+  const [tasks, setTasks] = useState(initialState);
+  const [task, setTask] = useState({id: 0});
+
+  useEffect(() => {
+    tasks.length <= 0 ? setIndex(1) :
+    setIndex(Math.max.apply(Math, tasks.map((item) => item.id)) + 1)
+  }, [tasks]);
+
+  function addTask(tas) {   
+    setTasks([...tasks, { ...tas, id: index }]);
+  }
+
+  function cancelTask(){
+    setTask({id: 0})
+  }
+
+  function updateTask(ts){
+    setTasks(tasks.map(item => item.id === ts.id ? ts : item))
+    setTask({id: 0})
+  }
+
+  function deleteTask(id){
+    const taskFilter = tasks.filter(task => task.id !== id);
+    setTasks([...taskFilter]);
+  }
+
+  function pegarTask(id) {
+    const task = tasks.filter(task => task.id === id);
+    setTask(task[0])
+  }
+
   return (
     <>
-      <form>
-        <input id="id" type="text" placeholder="id"/>
-        <input id="decricao" type="text" placeholder="descrição"/>
-        <button>Add Tarefa</button>
-      </form>
-      <div className="mt-3">
-        <ul className="list-group">
-          {tarefas.map(task =>(
-            <li key={task.id} className="list-group-item">{task.id} {task.descricao}</li>
-          ))}          
-        </ul>
-      </div>
+        <h1 className="display-5 fw-bold text-center pt-3 mt-3">Gerenciador de Tarefas</h1>
+        <TaskForm addTask={addTask} tasks={tasks} taskSelected={task} updateTask={updateTask} cancelTask={cancelTask}/>
+        <TaskList deleteTask={deleteTask} tasks={tasks} pegarTask={pegarTask}/>
     </>    
   );
 }
